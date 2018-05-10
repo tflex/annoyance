@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * Implementation of hook_permission().
+ */
+function annoyance_permission() {
+  return array(
+    'annoy users' => array(
+      'title' => t('Settings to annoy users'),
+      'description' => t('Allows management of Annoyance module.'),
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function annoyance_menu() {
+  $items = array();
+
+  $items['admin/config/system/annoyance'] = array(
+    'title' => 'ARE YOU ANNOYED?',
+    'description' => t('Set options for the Annoyance module.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_annoyance_options'),
+    'access arguments' => array('annoy users'),
+  );
+  return($items);
+}
+
+
+function form_annoyance_options() {
+  $form['annoyance_uid'] = array(
+    '#type' => 'textarea',
+    '#title' => t('User ID(s)'),
+    '#description' => t('Enter a list of User IDs to be affected, separated by commas.'),
+    '#size' => 22,
+    '#default_value' => variable_get('annoyance_uid', ''),
+    '#rows' => 5,
+  );
+
+  $form['annoyance_frequency'] = array(
+    '#type' => 'select',
+    '#title' => t('Frequency'),
+    '#description' => t('How often should these users be affected with this sweet feature?'),
+    '#options' => array(
+        100 => t('Never'),
+        95 => t('Very infrequently (5% of the time)'),
+        90 => t('Every once in a while (10% of the time)'),
+        75 => t('Annoyingly frequent (25% of the time)'),
+        50 => t('Half of the time (50% of the time)'),
+        35 => t('More often than not (65% of the time)'),
+        25 => t('Almost always (75% of the time)'),
+        10 => t('These users are going to be ANNOYED (90% of the time)'),
+        0 => t('Always'),
+       ),
+    '#default_value' => variable_get('annoyance_frequency', ''),
+  );
+
+  return system_settings_form($form);
+
+}
+
+/**
+ * Implements hook_init().
+ */
+function annoyance_init() {
+  // Get list of affected users.
+  $users = explode(",",variable_get('annoyance_uid', ''));
+
+  // Get current logged in user.
+  global $user;
+  $current_user = $user->uid;
+
+  // Only target the listed users.
+  if(in_array($current_user, $users)) {
+
+    $rn = (rand(1,100));
+    if($rn > variable_get('annoyance_frequency', 100)) {
+
+      //Generate a random outcome.
+      $random_outcome=(rand(1,6));
+      print $random_outcome;
+
+      switch($random_outcome) {
+      case 1:
+        // Outcome 1 - just die.
+        die;
+        break;
+      case 2:
+        // Outcome 2 - display ambiguous error message
+        drupal_set_message(t('There was a problem with your request. Error x50pd98sps09hj39. Errors are not permitted on this site. Please try again.'), 'status');
+        break;
+      case 3:
+        // Outcome 3 - send user to Google
+        //drupal_goto("http://www.google.com");
+        break;
+      case 4:
+        // Outcome 4 - Fade paragraph text over 30 seconds
+        drupal_add_js('jQuery(document).ready(function () { jQuery("p").fadeOut(30000); });', 'inline');
+        break;
+      case 5:
+        // Outcome 5 - disable all form buttons on the page
+        drupal_add_js('jQuery(document).ready(function () {jQuery("button").prop("disabled", true); jQuery("submit").prop("disabled", true); });', 'inline');
+        break;
+      case 6:
+        // Outcome 6 - invert all colous.
+        drupal_add_css('body {filter: invert(100%);}', 'inline');
+        break;
+      }
+    }
+  }
+}
+

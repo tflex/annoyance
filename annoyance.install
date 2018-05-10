@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implementation of hook_uninstall().
+ */
+
+function annoyance_uninstall() {
+  db_delete('variable')
+  ->condition('name', 'annoyance_%', 'LIKE')
+  ->execute();
+}
