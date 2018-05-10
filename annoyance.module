@@ -40,6 +40,9 @@ function form_annoyance_options() {
     6 => t('Invert the color of all images on the page.'),
     7 => t('Disable all links and clickable items on the page.'),
     8 => t('Rotate page by 1 degree.'),
+    9 => t('Divitis.'),
+    10 => t('Refresh page every so often (Refresh time can be set below).'),
+    11 => t('Display an alert (Message can be set below).'),
   );
 
   $frequency_options = array(
@@ -57,7 +60,7 @@ function form_annoyance_options() {
   $form['annoyance_uid'] = array(
     '#type' => 'textarea',
     '#title' => t('User ID(s)'),
-    '#description' => t('Enter a list of User IDs to be affected, separated by commas.'),
+    '#description' => t('Enter a list of User IDs to be affected, separated by commas. Enter 0 if you\'d like to affect anonymous users.'),
     '#size' => 22,
     '#default_value' => variable_get('annoyance_uid', ''),
     '#rows' => 5,
@@ -76,7 +79,7 @@ function form_annoyance_options() {
     '#title' => t('Select the annoying outcomes you\'d like to inflict on users.'),
     '#options' => $outcome_options,
     '#default_value' => variable_get('annoyance_outcomes', 0),
-    '#description' => t('If the user is randomly selected to be targeted, they will be inflicted with one of these selected options.'),
+    '#description' => t('If the user is randomly selected to be targeted, they will be inflicted with one of these selected outcomes.'),
    );
 
   $form['annoyance_custom_group'] = array(
@@ -90,7 +93,7 @@ function form_annoyance_options() {
     '#type' => 'textfield',
     '#title' => t('Random URL'),
     '#description' => t('One option from above is to randomly send the user to a specific URL. Enter the URL here.'),
-    '#size' => 60,
+    '#size' => 80,
     '#default_value' => variable_get('annoyance_random_url', ''),
   );
 
@@ -98,8 +101,25 @@ function form_annoyance_options() {
     '#type' => 'textfield',
     '#title' => t('Random error message'),
     '#description' => t('One option from above is to randomly display an error message. Enter the error message here.'),
-    '#size' => 60,
+    '#size' => 80,
     '#default_value' => variable_get('annoyance_random_error', ''),
+  );
+
+  $form['annoyance_custom_group']['annoyance_refresh_time'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Page refresh time limit'),
+    '#description' => t('One of the options above is to refresh the page after a certain amount of time. Enter the time (in seconds) how often you\'d like the page to refresh.'),
+    '#size' => 10,
+    '#field_suffix' => 'seconds',
+    '#default_value' => variable_get('annoyance_refresh_time', 10),
+  );
+
+  $form['annoyance_custom_group']['annoyance_alert'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Alert Message'),
+    '#description' => t('One option from above is to randomly display an alert. Enter the alert message here.'),
+    '#size' => 80,
+    '#default_value' => variable_get('annoyance_alert', ''),
   );
 
   return system_settings_form($form);
@@ -110,6 +130,7 @@ function form_annoyance_options() {
  * Implements hook_init().
  */
 function annoyance_init() {
+
   // Get list of outcomes.
   $oa = variable_get('annoyance_outcomes', '');
 
@@ -121,7 +142,7 @@ function annoyance_init() {
   $current_user = $user->uid;
 
   // Only target the listed users.
-  if(in_array($current_user, $users)) {
+  if(in_array($current_user, $users) && current_path() != "admin/config/system/annoyance") {
 
     // Check frequency and see if we should target user.
     $rn = (rand(1,100));
@@ -161,8 +182,21 @@ function annoyance_init() {
         drupal_add_css('body {pointer-events:none;}', 'inline');
         break;
       case 8:
-        // Outcome 7 - disable all links on page.
+        // Outcome 8 - rotate page by 1 degree.
         drupal_add_css('body {transform:rotate(1deg);}', 'inline');
+        break;
+      case 9:
+        // Outcome 9 - shifty divs.
+        drupal_add_css('div>div:hover {transform: translateX(40px);}', 'inline');
+        break;
+      case 10:
+        // Outcome 10 - Fade paragraph text over 30 seconds.
+        $refresh = variable_get('annoyance_refresh_time', 10) * 1000;
+        drupal_add_js('jQuery(document).ready(function () { setTimeout(function () { location.reload(1); }, '.$refresh.'); });', 'inline');
+        break;
+      case 11:
+        // Outcome 11 - display an alert.
+        drupal_add_js('jQuery(document).ready(function () {alert("'.variable_get('annoyance_alert', "").'"); });', 'inline');
         break;
       }
     }
