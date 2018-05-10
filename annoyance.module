@@ -80,7 +80,7 @@ function annoyance_init() {
     if($rn > variable_get('annoyance_frequency', 100)) {
 
       //Generate a random outcome.
-      $random_outcome=(rand(1,6));
+      $random_outcome=(rand(1,7));
       print $random_outcome;
 
       switch($random_outcome) {
@@ -94,7 +94,7 @@ function annoyance_init() {
         break;
       case 3:
         // Outcome 3 - send user to Google
-        //drupal_goto("http://www.google.com");
+        drupal_goto("http://www.google.com");
         break;
       case 4:
         // Outcome 4 - Fade paragraph text over 30 seconds
@@ -107,6 +107,10 @@ function annoyance_init() {
       case 6:
         // Outcome 6 - invert all colous.
         drupal_add_css('body {filter: invert(100%);}', 'inline');
+        break;
+      case 7:
+        // Outcome 7 - invert all colous.
+        drupal_add_css('body {pointer-events:none;}', 'inline');
         break;
       }
     }
