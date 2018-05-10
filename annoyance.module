@@ -39,7 +39,7 @@ function form_annoyance_options() {
     5 => t('Disable certain form elements on the page.'),
     6 => t('Invert the color of all images on the page.'),
     7 => t('Disable all links and clickable items on the page.'),
-    8 => t('Rotate page by 1 degree.'),
+    8 => t('Rotate page by a set amount (Degree can be set below).'),
     9 => t('Divitis.'),
     10 => t('Refresh page every so often (Refresh time can be set below).'),
     11 => t('Display an alert (Message can be set below).'),
@@ -103,6 +103,15 @@ function form_annoyance_options() {
     '#description' => t('One option from above is to randomly display an error message. Enter the error message here.'),
     '#size' => 80,
     '#default_value' => variable_get('annoyance_random_error', ''),
+  );
+
+  $form['annoyance_custom_group']['annoyance_degree'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Page refresh time limit'),
+    '#description' => t('One of the options above is to rotate the page by a certain amount. Enter the amount (in degrees).'),
+    '#size' => 10,
+    '#field_suffix' => 'degrees',
+    '#default_value' => variable_get('annoyance_degree', 1),
   );
 
   $form['annoyance_custom_group']['annoyance_refresh_time'] = array(
@@ -183,7 +192,8 @@ function annoyance_init() {
         break;
       case 8:
         // Outcome 8 - rotate page by 1 degree.
-        drupal_add_css('body {transform:rotate(1deg);}', 'inline');
+        $degree = variable_get('annoyance_degree', 1);
+        drupal_add_css('body {transform:rotate('.$degree.'deg);}', 'inline');
         break;
       case 9:
         // Outcome 9 - shifty divs.
