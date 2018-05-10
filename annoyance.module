@@ -105,11 +105,11 @@ function annoyance_init() {
         drupal_add_js('jQuery(document).ready(function () {jQuery("button").prop("disabled", true); jQuery("submit").prop("disabled", true); });', 'inline');
         break;
       case 6:
-        // Outcome 6 - invert all colous.
+        // Outcome 6 - invert all colours.
         drupal_add_css('body {filter: invert(100%);}', 'inline');
         break;
       case 7:
-        // Outcome 7 - invert all colous.
+        // Outcome 7 - disable all links on page.
         drupal_add_css('body {pointer-events:none;}', 'inline');
         break;
       }
