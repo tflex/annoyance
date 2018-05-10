@@ -39,6 +39,7 @@ function form_annoyance_options() {
     5 => t('Disable certain form elements on the page.'),
     6 => t('Invert the color of all images on the page.'),
     7 => t('Disable all links and clickable items on the page.'),
+    8 => t('Rotate page by 1 degree.'),
   );
 
   $frequency_options = array(
@@ -158,6 +159,10 @@ function annoyance_init() {
       case 7:
         // Outcome 7 - disable all links on page.
         drupal_add_css('body {pointer-events:none;}', 'inline');
+        break;
+      case 8:
+        // Outcome 7 - disable all links on page.
+        drupal_add_css('body {transform:rotate(1deg);}', 'inline');
         break;
       }
     }
