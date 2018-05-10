@@ -31,6 +31,28 @@ function annoyance_menu() {
 
 
 function form_annoyance_options() {
+  $outcome_options = array(
+    1 => t('Just Die. Shows a white screen.'),
+    2 => t('Display an error message (Can be set below).'),
+    3 => t('Send user to URL (Can be set below).'),
+    4 => t('Fade out all Paragraph text over the span of 30 seconds.'),
+    5 => t('Disable certain form elements on the page.'),
+    6 => t('Invert the color of all images on the page.'),
+    7 => t('Disable all links and clickable items on the page.'),
+  );
+
+  $frequency_options = array(
+    100 => t('Never'),
+    95 => t('Very infrequently (5% of the time)'),
+    90 => t('Every once in a while (10% of the time)'),
+    75 => t('Annoyingly frequent (25% of the time)'),
+    50 => t('Half of the time (50% of the time)'),
+    35 => t('More often than not (65% of the time)'),
+    25 => t('Almost always (75% of the time)'),
+    10 => t('These users are going to be ANNOYED (90% of the time)'),
+    0 => t('Always'),
+  );
+
   $form['annoyance_uid'] = array(
     '#type' => 'textarea',
     '#title' => t('User ID(s)'),
@@ -44,18 +66,39 @@ function form_annoyance_options() {
     '#type' => 'select',
     '#title' => t('Frequency'),
     '#description' => t('How often should these users be affected with this sweet feature?'),
-    '#options' => array(
-        100 => t('Never'),
-        95 => t('Very infrequently (5% of the time)'),
-        90 => t('Every once in a while (10% of the time)'),
-        75 => t('Annoyingly frequent (25% of the time)'),
-        50 => t('Half of the time (50% of the time)'),
-        35 => t('More often than not (65% of the time)'),
-        25 => t('Almost always (75% of the time)'),
-        10 => t('These users are going to be ANNOYED (90% of the time)'),
-        0 => t('Always'),
-       ),
+    '#options' => $frequency_options,
     '#default_value' => variable_get('annoyance_frequency', ''),
+  );
+
+  $form['annoyance_outcomes'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Select the annoying outcomes you\'d like to inflict on users.'),
+    '#options' => $outcome_options,
+    '#default_value' => variable_get('annoyance_outcomes', 0),
+    '#description' => t('If the user is randomly selected to be targeted, they will be inflicted with one of these selected options.'),
+   );
+
+  $form['annoyance_custom_group'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Customize Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['annoyance_custom_group']['annoyance_random_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Random URL'),
+    '#description' => t('One option from above is to randomly send the user to a specific URL. Enter the URL here.'),
+    '#size' => 60,
+    '#default_value' => variable_get('annoyance_random_url', ''),
+  );
+
+  $form['annoyance_custom_group']['annoyance_random_error'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Random error message'),
+    '#description' => t('One option from above is to randomly display an error message. Enter the error message here.'),
+    '#size' => 60,
+    '#default_value' => variable_get('annoyance_random_error', ''),
   );
 
   return system_settings_form($form);
@@ -66,6 +109,9 @@ function form_annoyance_options() {
  * Implements hook_init().
  */
 function annoyance_init() {
+  // Get list of outcomes.
+  $oa = variable_get('annoyance_outcomes', '');
+
   // Get list of affected users.
   $users = explode(",",variable_get('annoyance_uid', ''));
 
@@ -76,37 +122,38 @@ function annoyance_init() {
   // Only target the listed users.
   if(in_array($current_user, $users)) {
 
+    // Check frequency and see if we should target user.
     $rn = (rand(1,100));
     if($rn > variable_get('annoyance_frequency', 100)) {
 
       //Generate a random outcome.
-      $random_outcome=(rand(1,7));
-      print $random_outcome;
+      $random_outcome=array_rand(array_filter($oa));
 
+      // Apply random outcome.
       switch($random_outcome) {
       case 1:
         // Outcome 1 - just die.
         die;
         break;
       case 2:
-        // Outcome 2 - display ambiguous error message
-        drupal_set_message(t('There was a problem with your request. Error x50pd98sps09hj39. Errors are not permitted on this site. Please try again.'), 'status');
+        // Outcome 2 - display ambiguous error message.
+        drupal_set_message(t(variable_get('annoyance_random_error', '')), 'error');
         break;
       case 3:
-        // Outcome 3 - send user to Google
-        drupal_goto("http://www.google.com");
+        // Outcome 3 - send user to Google.
+        drupal_goto(variable_get('annoyance_random_url', ''));
         break;
       case 4:
-        // Outcome 4 - Fade paragraph text over 30 seconds
+        // Outcome 4 - Fade paragraph text over 30 seconds.
         drupal_add_js('jQuery(document).ready(function () { jQuery("p").fadeOut(30000); });', 'inline');
         break;
       case 5:
-        // Outcome 5 - disable all form buttons on the page
-        drupal_add_js('jQuery(document).ready(function () {jQuery("button").prop("disabled", true); jQuery("submit").prop("disabled", true); });', 'inline');
+        // Outcome 5 - disable certain form elements.
+        drupal_add_js('jQuery(document).ready(function () {jQuery("input").prop("disabled", true); });', 'inline');
         break;
       case 6:
-        // Outcome 6 - invert all colours.
-        drupal_add_css('body {filter: invert(100%);}', 'inline');
+        // Outcome 6 - invert colours of all images.
+        drupal_add_css('img {filter: invert(100%);}', 'inline');
         break;
       case 7:
         // Outcome 7 - disable all links on page.
@@ -116,4 +163,3 @@ function annoyance_init() {
     }
   }
 }
-
