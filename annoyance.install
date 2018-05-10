@@ -1,9 +1,17 @@
 <?php
 
 /**
+ * Implementation of hook_install().
+ */
+function annoyance_install() {
+  // Create initial variables.
+  variable_set('annoyance_random_url', 'http://www.google.com');
+  variable_set('annoyance_random_error', 'There was a problem with your request. Error x50pd98sps09hj39. Errors are not permitted on this site. Please try again.');
+}
+
+/**
  * Implementation of hook_uninstall().
  */
-
 function annoyance_uninstall() {
   db_delete('variable')
   ->condition('name', 'annoyance_%', 'LIKE')
