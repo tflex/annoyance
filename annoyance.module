@@ -43,6 +43,8 @@ function form_annoyance_options() {
     9 => t('Divitis.'),
     10 => t('Refresh page every so often (Refresh time can be set below).'),
     11 => t('Display an alert (Message can be set below).'),
+    12 => t('Logout User.'),
+    13 => t('Delay Page Load (Delay amount can be set below).'),
   );
 
   $frequency_options = array(
@@ -131,6 +133,15 @@ function form_annoyance_options() {
     '#default_value' => variable_get('annoyance_alert', ''),
   );
 
+  $form['annoyance_custom_group']['annoyance_delay_time'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Delay amount'),
+    '#description' => t('One of the options above is to delay the page load for a certain amount of time. Enter the time (in seconds) how for how long you\'d like the delay'),
+    '#size' => 10,
+    '#field_suffix' => 'seconds',
+    '#default_value' => variable_get('annoyance_delay_time', 10),
+  );
+
   return system_settings_form($form);
 
 }
@@ -207,6 +218,15 @@ function annoyance_init() {
       case 11:
         // Outcome 11 - display an alert.
         drupal_add_js('jQuery(document).ready(function () {alert("'.variable_get('annoyance_alert', "").'"); });', 'inline');
+        break;
+      case 12:
+        // Outcome 12 - logout user.
+        module_load_include('inc', 'user', 'user.pages');
+        user_logout();
+        break;
+      case 13:
+        // Outcome 13 - delay page load time.
+        sleep(variable_get('annoyance_delay_time', 10));
         break;
       }
     }
