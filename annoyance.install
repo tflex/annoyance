@@ -10,6 +10,7 @@ function annoyance_install() {
   variable_set('annoyance_degree', 1);
   variable_set('annoyance_refresh_time', 10);
   variable_set('annoyance_alert', 'There was a problem with your request. Please restart your computer.');
+  variable_set('annoyance_delay_time', 10);
 }
 
 /**
